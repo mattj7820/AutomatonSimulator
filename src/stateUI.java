@@ -13,6 +13,7 @@ public class stateUI extends JComponent {
   private volatile int myY = 0;
   private state s;
   private pushdown p;
+  private boolean disableRightClick;
   
   //private int mouseMode;
   //private String firstState;
@@ -35,7 +36,7 @@ public class stateUI extends JComponent {
       public void mouseClicked(MouseEvent e) {
     	  //System.out.println("Button clicked");
     	  
-    	  if(SwingUtilities.isRightMouseButton(e)) {
+    	  if(SwingUtilities.isRightMouseButton(e) && !disableRightClick) {
     		  s.setEnd(!s.getEnd());
     		  p.updateAccepting();
     		  return;
@@ -79,6 +80,7 @@ public class stateUI extends JComponent {
     	    	  String z = zField.getText();
     	    	  
     	    	 //Alphabet validation
+    	    	  /*
     	    	 if(!p.inputAlphabet.contains(xField.getText())) {
     	    		 JOptionPane.showMessageDialog(null, "The input \"" + xField.getText() + "\" does not belong to the input alphabet");
     	    		 return;
@@ -103,6 +105,7 @@ public class stateUI extends JComponent {
     	    		 JOptionPane.showMessageDialog(null, "The end stack state cannot be more than 2 characters");
     	    		 return;
     	    	 }
+    	    	 */
     	    	 
     	    	  
     	    	  
@@ -211,6 +214,15 @@ public class stateUI extends JComponent {
       }
       
   }
+  
+  public void disableRightClick() {
+	  disableRightClick = true;
+  }
+  
+  public void enableRightClick() {
+	  disableRightClick = false;
+  }
+  
   
 
 

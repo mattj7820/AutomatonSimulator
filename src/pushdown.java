@@ -45,17 +45,155 @@ public class pushdown {
 		transitions = new transition[0];
 		inputAlphabet = new alphabet();
 		stackAlphabet = new alphabet();
+		inputAlphabet.setAlphabet("01");
+		stackAlphabet.setAlphabet("XYZ");
 		state temp = new state("s1", true, false);
 		addState(temp);
 		startState = temp;
-		startStackSymbol = new symbol("A");;
+		startStackSymbol = new symbol("X");;
 		accepting = new state[0];
 		
 		stack = new Stack<String>();
 		current = startState.getName();
 	}
 	
-	public pushdown(int n) {
+	
+	public pushdown(int level) {
+		if(level == 1) {
+			inputAlphabet = new alphabet();
+			stackAlphabet = new alphabet();
+			
+			inputAlphabet.setAlphabet("01");
+			stackAlphabet.setAlphabet("X");
+			
+			states = new state[0];
+			transitions = new transition[0];
+			startStackSymbol = new symbol("X");
+			accepting = new state[0];
+			
+			stack = new Stack<String>();
+			stack.push(startStackSymbol.getValue());
+			
+			state s1 = new state("s1", true, false);
+			startState = s1;
+			current = startState.getName();
+			
+			addState(s1);
+			
+			String[] add = {"X","X"};
+			String[] neutral =  {"X"};
+			String[] remove = {"e"};
+			
+			addTransition("s1", "0", "e", "s1", add);
+			addTransition("s1", "1", "e", "s1", add);
+			addTransition("s1", "0", "X", "s1", remove);
+			addTransition("s1", "1", "X", "s1", add);
+			addTransition("s1", "e", "e", "s1", neutral);
+			addTransition("s1", "e", "X", "s1", neutral);
+		}
+		else if(level == 2) {
+			inputAlphabet = new alphabet();
+			stackAlphabet = new alphabet();
+			
+			inputAlphabet.setAlphabet("01");
+			stackAlphabet.setAlphabet("XY");
+			
+			states = new state[0];
+			transitions = new transition[0];
+			startStackSymbol = new symbol("X");
+			accepting = new state[0];
+			
+			stack = new Stack<String>();
+			stack.push(startStackSymbol.getValue());
+			
+			state s1 = new state("s1", true, false);
+			state s2 = new state("s2", false, true);
+			startState = s1;
+			current = startState.getName();
+			
+			addState(s1);
+			addState(s2);
+			
+			String[] addX = {"X","X"};
+			String[] neutralX =  {"X"};
+			String[] addY = {"Y","Y"};
+			String[] neutralY =  {"Y"};
+			String[] remove = {"e"};
+			
+			addTransition("s1", "1", "X", "s1", addX);
+			addTransition("s1", "1", "Y", "s1", remove);
+			addTransition("s1", "1", "e", "s2", addY);
+			addTransition("s1", "0", "X", "s1", neutralY);
+			addTransition("s1", "0", "Y", "s1", addX);
+			addTransition("s1", "0", "e", "s2", addY);
+			addTransition("s1", "e", "X", "s1", neutralX);
+			
+			addTransition("s2", "1", "X", "s2", remove);
+			addTransition("s2", "1", "Y", "s2", remove);
+			addTransition("s2", "1", "e", "s1", addY);
+			addTransition("s2", "0", "X", "s2", addX);
+			addTransition("s2", "0", "Y", "s2", neutralY);
+			addTransition("s2", "0", "e", "s1", addY);					
+		}
+		else if(level == 3) {
+			inputAlphabet = new alphabet();
+			stackAlphabet = new alphabet();
+			
+			inputAlphabet.setAlphabet("01");
+			stackAlphabet.setAlphabet("X");
+			
+			states = new state[0];
+			transitions = new transition[0];
+			startStackSymbol = new symbol("X");
+			accepting = new state[0];
+			
+			stack = new Stack<String>();
+			stack.push(startStackSymbol.getValue());
+			
+			state s1 = new state("s1", true, false);
+			state s2 = new state("s2", false, true);
+			state s3 = new state("s3", false, false);
+			startState = s1;
+			current = startState.getName();
+			
+			addState(s1);
+			addState(s2);
+			addState(s3);
+			
+			String[] add = {"X","X"};
+			String[] neutral =  {"X"};
+			String[] remove = {"e"};
+			
+			addTransition("s1", "0", "X", "s1", add);
+			addTransition("s1", "0", "e", "s1", add);
+			addTransition("s1", "1", "X", "s2", add);
+			addTransition("s1", "1", "e", "s2", add);
+			addTransition("s1", "e", "X", "s2", neutral);
+			
+			
+			addTransition("s2", "0", "X", "s2", remove);
+			addTransition("s2", "0", "e", "s3", neutral);
+			addTransition("s2", "1", "X", "s3", remove);
+			addTransition("s2", "1", "e", "s3", neutral);
+			
+			addTransition("s3", "0", "X", "s3", neutral);
+			addTransition("s3", "0", "e", "s3", neutral);
+			addTransition("s3", "1", "X", "s3", neutral);
+			addTransition("s3", "1", "e", "s3", neutral);
+			
+
+		}	
+		else if(level == 4) {
+			
+		}	
+		else{
+			System.out.println("Level not found");
+		}
+		
+	}
+	
+	
+	public pushdown(int n, String Q) {
 		String[] a = {"a", "b"};
 		String[] b = {"A", "S"};
 				
@@ -149,6 +287,7 @@ public class pushdown {
 		states = temp;
 		
 		stateCount++;
+		updateAccepting();
 		
 	}
 	
@@ -159,22 +298,56 @@ public class pushdown {
 				if(states[i].getEnd() == true) {
 					updateAccepting();
 				}
+				
+				//System.out.println(transitions.length);
+				ArrayList<String> remove = new ArrayList<String>();
+				
 				for(int j = 0; j < transitions.length; j++) {
+					//System.out.println("Comparing " + states[i].getName() + " to " + transitions[j].start.getName() + " and " + transitions[j].end.getName());
 					if(transitions[j].start.getName().equals(states[i].getName()) || transitions[j].end.getName().equals(states[i].getName()) ) {
-						removeFromTransitions(j);
+						//removeFromTransitions(j);
+						remove.add(transitions[j].getString());
+						//System.out.println("match\n");
+					}
+					else {
+						//System.out.println("no match\n");
 					}
 				}
+				/*
+				System.out.println(remove.toString());
+				for(int x = 0; x < transitions.length; x++) {
+					System.out.println(transitions[x].getString());
+				}
+				*/
 				
+				for(int j = 0; j < remove.size(); j++) {
+					//removeFromTransitions(remove.get(j));
+					removeTransitionWithString(remove.get(j));
+				}
+				
+				/*
+				System.out.println("After");
+				for(int x = 0; x < transitions.length; x++) {
+					System.out.println(transitions[x].getString());
+				}
+				*/
+				
+				
+				
+				/*
 				states[i].setName("dead");
 				
 				for(int j = 0; j < transitions.length; j++) {
 					if(transitions[j].start.getName().equals("dead") || transitions[j].end.getName().equals("") ) {
+						System.out.println("Removing " + transitions[j].getString());
 						removeFromTransitions(j);
 					}
 				}
+				*/
+				
 				
 				removeFromStates(i);
-				stateCount --;
+				//stateCount --;
 				return;
 			}
 			
@@ -339,14 +512,17 @@ public class pushdown {
 	}
 	
 	public boolean input(String s) {
+		System.out.println("NEW INPUT: " + s);
 		stack.clear();
 		stack.push(startStackSymbol.getValue());
 		current = startState.getName();
 		char[] t = s.toCharArray();
 		
+		//System.out.println("testing e:" + s);
+		
 		//Testing input alphabet
 		for(int i = 0; i < t.length; i++) {
-			if(!inputAlphabet.contains(String.valueOf(t[i]))) {
+			if(!inputAlphabet.contains(String.valueOf(t[i])) && !Character.toString(t[i]).equals("e")) {
 				//System.out.println("Input contains symbols that are not in the input alphabet");
 				JOptionPane.showMessageDialog(null, "The input \"" + s + "\" contains symbols that are not in the input alphabet");
 				return false;
@@ -397,6 +573,18 @@ public class pushdown {
 		ArrayList<String> temp = new ArrayList<String>();
 		stackStepped = new ArrayList<String>();
 		
+		//Testing input alphabet
+		for(int i = 0; i < t.length; i++) {
+			if(!inputAlphabet.contains(String.valueOf(t[i])) && !Character.toString(t[i]).equals("e")) {
+				//System.out.println("Input contains symbols that are not in the input alphabet");
+				//JOptionPane.showMessageDialog(null, "The input \"" + s + "\" contains symbols that are not in the input alphabet");
+				return temp;
+				//return "The input \"" + s + "\" contains symbols that are not in the input alphabet";
+			}
+		}
+		
+		
+		
 		for(int i = 0; i < t.length; i++) {
 			stepThrough(current, new symbol(Character.toString(t[i])), i, temp);
 		}
@@ -408,20 +596,58 @@ public class pushdown {
 	public void stepThrough(String cur, symbol s, int x, ArrayList<String> store) {
 		for(int i = 0; i < transitions.length; i++) {
 			transition t = transitions[i];
-			if(t.start.getName().equals(cur) && s.getValue().equals(t.sym.getValue()) && stack.peek().equals(t.getStartStack().getValue())) {
+			
+			//if stack is empty search for e
+			String a;
+			if(!stack.isEmpty()) {
+				a = stack.peek();
+			}
+			else {
+				a = "e";
+			}
+			
+			if(t.start.getName().equals(cur) && s.getValue().equals(t.sym.getValue()) && a.equals(t.getStartStack().getValue())) {
 				//Printing used Transition and stack (current state)
 				System.out.println("Current state: " + cur);
 				printStack();
-				stackStepped.add(stack.toString());
+				System.out.println("Stack stepped" + stackStepped.toString());
 				t.printT();
 				store.add(t.getString());
 				System.out.println();
 				//
 				current = t.getEnd().getName();
-				stack.pop();
+				
+				//if stack is already empty, don't pop
+				if(!stack.isEmpty()) {
+					stack.pop();
+				}
+				
+				//if end stack is e don't push anything
+				if(t.getEndStack()[0].getValue().equals("e")) {
+					System.out.println("Empty found");
+					System.out.println("New stack: " + stack.toString());
+					System.out.println();
+					stackStepped.add(stack.toString());
+					return;
+				}
+				
+				//if stack coming in is empty and 2 in stackEnd for transition
+				if((a.equals("e") && t.getEndStack().length == 2) ) {
+					System.out.println("Only adding last");
+					stack.push(t.getEndStack()[1].getValue());
+					System.out.println("New stack: " + stack.toString());
+					System.out.println();
+					stackStepped.add(stack.toString());
+					return;
+				}
+				
+				
 				for(symbol m : t.getEndStack()) {
 					stack.push(m.getValue());
 				}
+				//Output stack arraylist
+				stackStepped.add(stack.toString());
+				return;
 			}
 		}
 	}
@@ -431,18 +657,53 @@ public class pushdown {
 		//Find the corresponding transition (if none non-determinant)
 		for(int i = 0; i < transitions.length; i++) {
 			transition t = transitions[i];
-			if(t.start.getName().equals(cur) && s.getValue().equals(t.sym.getValue()) && stack.peek().equals(t.getStartStack().getValue())) {
+			
+			//if stack is empty search for e
+			String a;
+			if(!stack.isEmpty()) {
+				a = stack.peek();
+			}
+			else {
+				a = "e";
+			}
+			
+			if(t.start.getName().equals(cur) && s.getValue().equals(t.sym.getValue()) && a.equals(t.getStartStack().getValue())) {
 				//Printing used Transition and stack (current state)
 				System.out.println("Current state: " + cur);
+				System.out.println("Input symbol used: " + s.getValue());
 				printStack();
 				t.printT();
-				System.out.println();
 				//
 				current = t.getEnd().getName();
-				stack.pop();
+				
+				//if stack is already empty, don't pop
+				if(!stack.isEmpty()) {
+					stack.pop();
+				}
+				
+				//if end stack is e don't push anything
+				if(t.getEndStack()[0].getValue().equals("e")) {
+					System.out.println("Empty found");
+					System.out.println("New stack: " + stack.toString());
+					System.out.println();
+					return;
+				}
+				
+				//if stack coming in is empty and 2 in stackEnd for transition
+				if(a.equals("e") && t.getEndStack().length == 2 ) {
+					System.out.println("Only adding last");
+					stack.push(t.getEndStack()[1].getValue());
+					System.out.println("New stack: " + stack.toString());
+					System.out.println();
+					return;
+				}
+				
 				for(symbol m : t.getEndStack()) {
 					stack.push(m.getValue());
 				}
+				System.out.println("New stack: " + stack.toString());
+				System.out.println();
+				return;
 			}
 		}
 	}

@@ -20,6 +20,7 @@ public class GUI extends JFrame{
 	Timer timer;
 	Timer stepTimer;
 	int count = 60;
+	int countMax = 60;
 	ArrayList<String> used;
 	
 	ArrayList<String> transitionsStepped;
@@ -42,7 +43,7 @@ public class GUI extends JFrame{
         tabbedPane.add("Game 1", createSplitPanel(getGame1ControlPanel(), game1AutomatonPanel));
         //tabbedPane.add("Game 2", createSplitPanel(new JPanel(), new JPanel()));
         //tabbedPane.add("Game 3", createSplitPanel(new JPanel(), new JPanel()));
-        tabbedPane.addTab("Instructions", createPanel("Instructions"));
+        tabbedPane.addTab("Instructions", getInstructionsPanel());
         
         createLayout(tabbedPane);
 		
@@ -246,6 +247,7 @@ public class GUI extends JFrame{
 				if(!transitionsStepped.isEmpty()) {
 					mainAutomatonPanel.highlightTransition(transitionsStepped.get(0));
 					mainAutomatonPanel.showStack(stackStep.get(0));
+					stackStep.remove(0);
 					transitionsStepped.remove(0);
 				}
 				else {
@@ -311,6 +313,24 @@ public class GUI extends JFrame{
 
 			}   
 		   });
+	   
+	   button6.addActionListener(new ActionListener() {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			String s = area1.getText();
+			String[] parts = s.split("\n");
+			
+			for(int i = 0; i < parts.length; i++) {
+				//System.out.println(parts[i]);
+				mainAutomatonPanel.getAutomaton().input(parts[i]);
+			}
+			//System.out.println(area1.getText());
+			
+		}
+		   
+	   });
 	   
 	   //Alphabet listeners (user has to press enter to trigger update)
 	   inputAlphabet.addActionListener(new ActionListener() {
@@ -421,8 +441,12 @@ public class GUI extends JFrame{
 		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 			// TODO Auto-generated method stub
 			//System.out.println("Trig");
-			mainAutomatonPanel.getAutomaton().setStartStackSymbol(startingStack.getSelectedItem().toString());
-			startingStackLabel2.setText(mainAutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
+			if(!mainAutomatonPanel.getAutomaton().stackAlphabet.letters.isEmpty()) {
+				mainAutomatonPanel.getAutomaton().setStartStackSymbol(startingStack.getSelectedItem().toString());
+				startingStackLabel2.setText(mainAutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
+			}
+			//mainAutomatonPanel.getAutomaton().setStartStackSymbol(startingStack.getSelectedItem().toString());
+			//startingStackLabel2.setText(mainAutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
 			
 		}
 
@@ -461,7 +485,7 @@ public class GUI extends JFrame{
 		//stateUI mc = new stateUI();
 		//stateUI mc1 = new stateUI();
 		
-		var panel = new automatonPanel(new pushdown(0,0), false);
+		var panel = new automatonPanel(new pushdown(3), false);
 
 		panel.setLayout(null);
 
@@ -476,7 +500,7 @@ public class GUI extends JFrame{
 	private automatonPanel getGame1AutomatonPanel() {
 		
 		//pushdown constructor needs to make a random pda
-		var panel = new automatonPanel(new pushdown(1,1), true);
+		var panel = new automatonPanel(new pushdown(1), true);
 		panel.setLayout(null);
 		
 		return panel;
@@ -494,16 +518,20 @@ public class GUI extends JFrame{
 		var timeLabel = new JLabel(String.valueOf(count));
 		var timeRemain = new JLabel("Time remaining: ");
 		
+		var startStackLabel = new JLabel("Start stack symbol");
+		var startStackSymbol = new JLabel(game1AutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
+		
 		var panel = new JPanel();
 		var layout = new GroupLayout(panel);
 		
 		var usedLabel = new JLabel("Correct Answers");
 		var usedAns = new JComboBox();
 		
+		
 		var level1 = new JButton("Level 1");
 		var level2 = new JButton("Level 2");
 		var level3 = new JButton("Level 3");
-		var level4 = new JButton("Level 4");
+		//var level4 = new JButton("Level 4");
 		
 		panel.setLayout(layout);
 		
@@ -513,11 +541,11 @@ public class GUI extends JFrame{
 		//Creating horizontal groups
 		GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
 		hGroup.addGroup(layout.createParallelGroup().
-	            addComponent(input).addComponent(timeRemain).addComponent(usedLabel));
+	            addComponent(input).addComponent(timeRemain).addComponent(usedLabel).addComponent(startStackLabel));
 
 		hGroup.addGroup(layout.createParallelGroup().
 	            addComponent(inputField1).addComponent(timeLabel).addComponent(startButton)
-	            .addComponent(usedAns).addComponent(level1).addComponent(level2).addComponent(level3).addComponent(level4));
+	            .addComponent(usedAns).addComponent(level1).addComponent(level2).addComponent(level3).addComponent(startStackSymbol));
 		
 		hGroup.addGroup(layout.createParallelGroup().
 	            addComponent(test1));
@@ -538,6 +566,9 @@ public class GUI extends JFrame{
 	            addComponent(timeRemain).addComponent(timeLabel));
 		
 		vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
+	            addComponent(startStackLabel).addComponent(startStackSymbol));
+		
+		vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
 	            addComponent(usedAns).addComponent(usedLabel));
 		
 		vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
@@ -548,9 +579,6 @@ public class GUI extends JFrame{
 		
 		vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
 	            addComponent(level3));
-		
-		vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-	            addComponent(level4));
 		
 		layout.setVerticalGroup(vGroup);
 		
@@ -582,7 +610,7 @@ public class GUI extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean b = game1AutomatonPanel.getAutomaton().input(inputField1.getText());
-				if(b && !used.contains(inputField1.getText())) {
+				if(b && !used.contains(inputField1.getText()) && timer.isRunning()) {
 					game1AutomatonPanel.increaseGameScore();
 					used.add(inputField1.getText());
 					usedAns.addItem(inputField1.getText());
@@ -598,7 +626,7 @@ public class GUI extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				//game1AutomatonPanel.getAutomaton().generateRandom();
 				//start the timer
-				count = 60;
+				count = countMax;
 				game1AutomatonPanel.resetGameScore();
 				used.clear();
 				usedAns.removeAllItems();
@@ -613,12 +641,15 @@ public class GUI extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
+				countMax = 60;
 				pushdown p = new pushdown(1);
 				game1AutomatonPanel.setAutomaton(p);
+				startStackSymbol.setText(game1AutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
 				
 				if(timer.isRunning()) {
-					count = 60;
+					count = countMax;
 					timer.stop();
+					timeLabel.setText(String.valueOf(count));
 				}
 				
 			}
@@ -629,8 +660,43 @@ public class GUI extends JFrame{
 		level2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				pushdown p = new pushdown(1,1);
+				countMax = 120;
+				pushdown p = new pushdown(2);
 				game1AutomatonPanel.setAutomaton(p);
+				startStackSymbol.setText(game1AutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
+				
+				if(timer.isRunning()) {
+					count = countMax;
+					timer.stop();
+					timeLabel.setText(String.valueOf(count));
+				}
+			}
+		});
+		
+		level3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				countMax = 180;
+				pushdown p = new pushdown(3);
+				game1AutomatonPanel.setAutomaton(p);
+				startStackSymbol.setText(game1AutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
+				
+				if(timer.isRunning()) {
+					count = countMax;
+					timer.stop();
+					timeLabel.setText(String.valueOf(count));
+				}
+			}
+		});
+		
+
+		/*
+		level4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pushdown p = new pushdown(4);
+				game1AutomatonPanel.setAutomaton(p);
+				startStackSymbol.setText(game1AutomatonPanel.getAutomaton().getStartStackSymbol().getValue());
 				
 				if(timer.isRunning()) {
 					count = 60;
@@ -638,11 +704,18 @@ public class GUI extends JFrame{
 				}
 			}
 		});
+		*/
 		
 			   
 		return panel;
 		
 		
+	}
+	
+	private textPanel getInstructionsPanel() {
+		var panel = new textPanel();
+		
+		return panel;
 	}
 	
 	public static void main(String args[]) {
