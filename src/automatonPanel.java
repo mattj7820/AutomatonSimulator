@@ -18,9 +18,9 @@ public class automatonPanel extends JPanel{
 	String stackShown = null;
 	
 	public automatonPanel(pushdown a, boolean g) {
-		this.a = a;
-		init();
+		this.a = a; 
 		game = g;
+		init();
 	}
 	
 	public void init() {
@@ -28,6 +28,9 @@ public class automatonPanel extends JPanel{
 		
 		for(int i = 0; i < a.states.length; i++) {
 			stateUIList[i] = new stateUI(a.states[i], a);
+			if(game) {
+				stateUIList[i].disableRightClick();
+			}
 			add(stateUIList[i]);
 			
 		}
@@ -48,11 +51,16 @@ public class automatonPanel extends JPanel{
 	
 	public void removeState(String s) {
 		//stateUI[] temp = new stateUI[stateUIList.length - 1];
+		/*
 		for(int i = 0; i < stateUIList.length; i++) {
 			if(stateUIList[i].getState().getName().equals(s)) {
 				removeFromStatesUI(i);
 			}
 		}
+		*/
+		a.removeState(s);
+		removeSingleStateUI(s);
+		
 		
 		//stateUIList = temp;
 		//updateUI();
@@ -214,7 +222,7 @@ public class automatonPanel extends JPanel{
 		
 		if(stackShown != null) {
 			g2.setFont(new Font("TimesRoman", Font.PLAIN, 30));
-			g2.drawString("Stack: " + a.stack, 50,  50);
+			g2.drawString("Stack: " + stackShown, 50,  50);
 		}
 		//g2.drawLine(mc.getX() + 35, mc.getY() + 35, mc1.getX() + 35, mc1.getY() + 35);
 		
