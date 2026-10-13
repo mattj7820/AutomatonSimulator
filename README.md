@@ -3,8 +3,7 @@
 A desktop tool for building and testing **deterministic pushdown automata**, with a timed game for
 practising reading them. Written in Java (Swing) for my university dissertation in 2021.
 
-<!-- TODO: a screenshot of the Simulator tab with the example automaton below laid out, e.g.
-![The simulator with a two-state automaton accepting equal numbers of 0s and 1s](docs/simulator.png) -->
+![Game 1, level 2: a two-state pushdown automaton drawn with labelled transitions, beside the game's input box, timer and level buttons](docs/game.png)
 
 ## Why
 
